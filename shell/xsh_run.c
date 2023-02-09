@@ -9,10 +9,9 @@
  * xsh_run - obtain and print the current month, day, year, and time
  *------------------------------------------------------------------------
  */
+sid32 run_sem;
 shellcmd xsh_run(int nargs, char *args[]) {
-
-	/* Output info for '--help' argument */
-
+	run_sem = semcreate(0);
 	// Print list of available functions
 	 if ((nargs == 1) || (strncmp(args[1], "list", 4) == 0)) {
 	 printf("hello\n");
@@ -33,27 +32,6 @@ shellcmd xsh_run(int nargs, char *args[]) {
 	 else{
 		printf("Unknown command. Please try again");
 	     }
-
-	
-
-
-
-	/* Check argument count */
-
-	/*if (nargs > 2) {
-		fprintf(stderr, "%s: too many arguments\n", args[0]);
-		fprintf(stderr, "Try '%s --help' for more information\n",
-			args[0]);
-		return 1;
-	}
-	if (nargs < 2) {
-		                fprintf(stderr, "%s: too less arguments\n", args[0]);
-				                fprintf(stderr, "Try '%s --help' for more information\n",
-								                        args[0]);
-						                return 1;
-	}
-	//ascdate(now, datestr);
-	printf("Hello %s, Welcome to the world of Xinu!!\n", args[1]); 
-*/
+	wait(run_sem);
 	return 0;
 }

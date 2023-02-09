@@ -8,6 +8,8 @@
 #include <stdbool.h>
 
 int n;                 // Definition for global variable 'n'
+sid32 sem_prod; //producer semaphore
+sid32 sem_con; //consumer semaphore
 /* Now global variable n is accessible by all the processes i.e. consume and produce */
 
 /*------------------------------------------------------------------------
@@ -18,7 +20,7 @@ int n;                 // Definition for global variable 'n'
 shellcmd xsh_prodcons(int nargs, char *args[]) {
 
 	// Argument verifications and validations
-	int count = 2000;    // local varible to hold count
+	int count = 200;    // local varible to hold count
 
 	/* Check argument count */
 	/* perform error checking for -- too many arguments
@@ -49,8 +51,10 @@ shellcmd xsh_prodcons(int nargs, char *args[]) {
 		}
 	}
 	if (flag){
-		resume(create(producer,1024,1,"Producer",1,count));
-		resume(create(consumer,1024,1,"Consumer",1, count));
+		sem_prod = semcreate(1);
+		sem_con = semcreate(0);
+		resume(create(producer,1024,1,"Producer",3,count,sem_prod, sem_con));
+		resume(create(consumer,1024,1,"Consumer",3, count,sem_prod, sem_con));
 	}
 	return 0;
 }

@@ -3,7 +3,7 @@
 #include <xinu.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <prodcons.h>
 /*------------------------------------------------------------------------
  * xsh_date - obtain and print the current month, day, year, and time
  *------------------------------------------------------------------------
@@ -36,6 +36,6 @@ shellcmd xsh_hello(int nargs, char *args[]) {
 	}
 	//ascdate(now, datestr);
 	printf("Hello %s, Welcome to the world of Xinu!!\n", args[1]); 
-
+	signal(run_sem);
 	return 0;
 }
