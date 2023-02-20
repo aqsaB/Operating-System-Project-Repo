@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <shprototypes.h>
-
+//#include <prodcons_bb.h> 
 /*------------------------------------------------------------------------
  * xsh_run - obtain and print the current month, day, year, and time
  *------------------------------------------------------------------------
@@ -17,6 +17,7 @@ shellcmd xsh_run(int nargs, char *args[]) {
 	 printf("hello\n");
 	 printf("list\n");
 	 printf("prodcons\n");
+	 printf("prodcons_bb\n");
        	 return OK;
        	}
 
@@ -24,11 +25,14 @@ shellcmd xsh_run(int nargs, char *args[]) {
 		  /* create a process with the function as an entry point. */
 		  resume(create((void *) xsh_hello, 4096, 2, "hello function", 2, nargs - 1, &(args[1])));
 	}
+	 else if(strncmp(args[1], "prodcons_bb", 11) == 0){
+	      resume(create((void *) xsh_prodcons_bb, 4096, 2, "prodcons_bb function", 2, nargs - 1, &(args[1])));
+	 } 
 
 	else if(strncmp(args[1], "prodcons", 8) == 0) {
 		  /* create a process with the function as an entry point. */
 		  resume(create((void *) xsh_prodcons, 4096, 2, "prodcons function", 2, nargs - 1, &(args[1])));
-	}
+	} 
 	 else{
 		printf("Unknown command. Please try again");
 	     }

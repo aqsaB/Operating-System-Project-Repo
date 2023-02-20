@@ -1,0 +1,61 @@
+#include <xinu.h>
+#include <stdio.h>
+#define SIZE 5
+
+//void enqueue();
+//void dequeue();
+//int head = -1;
+//int tail = -1
+
+typedef struct Queue{
+	int *items;
+	int head;
+	int tail;
+	int size;
+	int max_size;
+}Queue;
+
+//Queue * createQueue(int queue_size){
+//	Queue *Q;
+//	Q = (Queue *)malloc(sizeof(Queue));
+//	Q->items = (int *)malloc(sizeof(int)*5); // ring buffer is of size 5
+//        Q->size = 0;
+//	Q->max_size = 5;
+//	Q->head = 0;
+//	Q->tail = -1;
+//	return Q;	
+//}
+bool isEmpty(Queue *Q){
+	if(Q->size == 0){
+		return 1;
+	}
+	return 0;
+}
+
+bool isFull(Queue *Q){
+	if(Q->size == Q->max_size){
+		return 1;
+	}
+	return 0;
+
+}
+//int dequeue(Queue *Q){
+//	if(isEmpty(*Q)){
+//		return;		
+//	}
+//	else{
+//		int element = Q->items[Q->head];
+//		Q->size--;
+//		Q->head++;
+//		if(Q->head==Q->max_size){
+//			Q->head = 0;
+//		}
+//	}
+//	return element;
+//}
+
+//void enqueue(Queue *Q, int element){
+	
+
+//}
+
