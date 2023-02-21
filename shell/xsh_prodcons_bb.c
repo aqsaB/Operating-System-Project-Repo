@@ -10,6 +10,7 @@
 int arr_q[5];                 // Definition for global circular array n
 int head = 0;
 int tail = 0;
+int total_consumers = 0;
 sid32 sem_prod; //producer semaphore
 sid32 sem_con; //consumer semaphore
 
@@ -41,7 +42,7 @@ shellcmd xsh_prodcons_bb(int nargs, char *args[]) {
 	m = atoi(args[2]);
 	i = atoi(args[3]);
 	j = atoi(args[4]);
-
+	total_consumers = m;
 	bool flag = true;
 	if (nargs == 2){
 		int i;

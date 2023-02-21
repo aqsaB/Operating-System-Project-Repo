@@ -16,7 +16,7 @@ void consumer_bb(int q, int j, sid32 sem_prod, sid32 sem_con) {
 	printf("name : consumer_%d, read : %d\n",q,element);
         signal(sem_prod);
   }
-  if(head==tail){
+  if(head==tail && (q+1)==total_consumers){
   	signal(run_sem);
 }
 }
