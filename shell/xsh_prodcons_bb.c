@@ -20,22 +20,28 @@ sid32 sem_con; //consumer semaphore
  */
 shellcmd xsh_prodcons_bb(int nargs, char *args[]) {
 
-	// Argument verifications and validations
-
-	int n,m,i,j;
-
-	n = atoi(args[1]);
-	m = atoi(args[2]);
-	i = atoi(args[3]);
-	j = atoi(args[4]);
+	// Argument verifications and validation
 	/* Check argument count */
 	/* perform error checking for -- too many arguments
 	 * incorrect argument type i.e. check if each char in the argument is an integer
 	 * negative values */
 	if (nargs > 5) {
 		fprintf(stderr, "%s: too many arguments\n", args[0]);
+		signal(run_sem);
 		return 1;
 	}
+	if(nargs < 5){
+		fprintf(stderr, "%s: too few arguments\n", args[0]);
+		signal(run_sem);
+		return 1;
+	} 
+	int n,m,i,j;
+
+	n = atoi(args[1]);
+	m = atoi(args[2]);
+	i = atoi(args[3]);
+	j = atoi(args[4]);
+
 	bool flag = true;
 	if (nargs == 2){
 		int i;
@@ -58,6 +64,7 @@ shellcmd xsh_prodcons_bb(int nargs, char *args[]) {
 			flag = false;
 			printf("Iteration Mismatch Error: the number of producer(s) iteration does not match the consumer(s) iteration\n");
 		signal(run_sem);
+		return 1;
 		}
 	}
 	if (flag){
