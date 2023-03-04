@@ -62,13 +62,15 @@ syscall xsh_futest(int nargs, char *args[]) {
 		else {
 			uint8 number = atoi(args[i]);
 			resume(create(future_prod, 2048, 20, "fprod1", 2, f_exclusive, number));
+			//printf("\nAfter creating consumers");
 			sleepms(5);
 		     }
 		i++;
 	    }
 	sleepms(100);
 	future_free(f_exclusive);
-	//printf("signalling");
+	//printf("signalling run semaphore");
 	signal(run_sem);
+	//printf("After signalling run semaphore");
 	return OK;
 }
