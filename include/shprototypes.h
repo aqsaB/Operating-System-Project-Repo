@@ -16,6 +16,9 @@ extern	shellcmd  xsh_clear	(int32, char *[]);
 /* in file xsh_date.c */
 extern	shellcmd  xsh_date	(int32, char *[]);
 
+/* in file xsh_futest.c */
+extern shellcmd xsh_futest(int32, char *[]);
+
 /* in file xsh_hello.c */
 extern shellcmd xsh_hello(int32, char *[]);
 

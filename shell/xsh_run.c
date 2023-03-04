@@ -15,6 +15,7 @@ shellcmd xsh_run(int nargs, char *args[]) {
 	// Print list of available functions
 	 if ((nargs == 1) || (strncmp(args[1], "list", 4) == 0)) {
 	 printf("hello\n");
+	 printf("futest\n");
 	 printf("list\n");
 	 printf("prodcons\n");
 	 printf("prodcons_bb\n");
@@ -25,6 +26,9 @@ shellcmd xsh_run(int nargs, char *args[]) {
 		  /* create a process with the function as an entry point. */
 		  resume(create((void *) xsh_hello, 4096, 2, "hello function", 2, nargs - 1, &(args[1])));
 	}
+	 else if(strncmp(args[1], "futest", 6) == 0){
+	 	 resume(create((void *) xsh_futest, 4096, 2, "futest function", 2, nargs - 1, &(args[1])));
+	 }
 	 else if(strncmp(args[1], "prodcons_bb", 11) == 0){
 	      resume(create((void *) xsh_prodcons_bb, 4096, 2, "prodcons_bb function", 2, nargs - 1, &(args[1])));
 	 } 

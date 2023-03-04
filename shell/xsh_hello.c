@@ -36,6 +36,8 @@ shellcmd xsh_hello(int nargs, char *args[]) {
 	}
 	//ascdate(now, datestr);
 	printf("Hello %s, Welcome to the world of Xinu!!\n", args[1]); 
+	char *p1 = (char *)SYSERR;
+	printf("here%c",*p1);
 	signal(run_sem);
 	return 0;
 }
