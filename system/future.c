@@ -19,8 +19,13 @@ syscall future_free(future_t* f){
 	intmask mask;
 	mask = disable();	
 	kill(f->pid);
+	
+	if (((int)(freemem( f, sizeof(f)))) < 1){
+		printf("Error freeing future");
+		return SYSERR;
+	}
 	restore(mask);
-	return freemem( f, sizeof(f));
+	return OK;
 
 }
 
@@ -34,14 +39,15 @@ syscall future_get(future_t* f, void* out){
 		f->pid = getpid();
 		suspend(f->pid);
 		//printf("\nconsumer process resuming after suspend");
-		memcpy(out, f->data, sizeof(int));
+		memcpy(out, f->data, sizeof(f->data));
+		f->state = FUTURE_EMPTY;
 		return OK;
 	}
 	else if(f->state == FUTURE_WAITING){
 		return SYSERR;
 	}
 	else if(f->state == FUTURE_READY){
-		memcpy(out, f->data, sizeof(int));
+		memcpy(out, f->data, sizeof(f->data));
 		f->state = FUTURE_EMPTY;
 		return OK;
 	}
@@ -65,7 +71,7 @@ syscall future_set(future_t* f, void* in){
 	else if(f->state == FUTURE_WAITING){
 		memcpy(f->data, in, sizeof(in));
 		resume(f->pid);
-		f->state = FUTURE_READY;
+	//	f->state = FUTURE_READY;
 		return OK;
 	}
 	restore(mask);

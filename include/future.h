@@ -1,5 +1,6 @@
 #include <xinu.h>
 extern sid32 run_sem;
+//extern sid32 print_sem;
 typedef enum {
 FUTURE_EMPTY,
 FUTURE_WAITING,
