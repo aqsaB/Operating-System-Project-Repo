@@ -28,6 +28,9 @@ extern shellcmd xsh_prodcons(int32, char *[]);
 /* in file xsh_prodcons_bb.c */
 extern shellcmd xsh_prodcons_bb(int32, char *[]);
 
+/* in file xsh_memtest.c */
+extern shellcmd xsh_memtest(int32, char *[]);
+
 /* in file xsh_run.c */
 extern shellcmd xsh_run(int32, char *[]);
 
