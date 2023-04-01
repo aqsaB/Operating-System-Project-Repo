@@ -124,6 +124,7 @@ shellcmd xsh_memtest(int nargs, char *args[]) {
 		    resume(create2(test6, 1024, 1024, 20, "Test 6", 0));
 		      resume(create2(test7, 1024, 1024, 20, "Test 7", 0));
   resume(create2(test8, 1024, 1024, 20, "Test 8", 0));
+signal(run_sem);
 
  return 0;
 }

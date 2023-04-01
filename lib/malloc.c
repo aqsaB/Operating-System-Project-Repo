@@ -81,6 +81,57 @@ void* malloc(uint32 size) {
 void free(char* block, uint32 size) {
 	  /* Implement memory free within process heap here */
 	  /*   Your implementation MUST implement coalesing */
-	  
-  return;
-}
+	heap_t* heap = &heaptab[getpid()];
+	char* heap_start = heap->startaddr;
+	char* heap_end = heap->startaddr + heap->size;
+	uint32 new_block_size = (uint32) roundmb(size);
+
+	free_blk* new_block = (free_blk*) block;
+	new_block->size = new_block_size;
+	free_blk* free_list = heap->freelist;
+
+	intmask mask = disable();
+	//printf("\nfree_list %d", (char*) free_list);
+	//printf("\nheap_start %d", heap_start);
+	if (free_list == NULL){
+		new_block->next = NULL;
+		new_block->prev = NULL;
+		free_list = new_block;
+		restore(mask);
+		return;
+	}
+	while(((char*) free_list + free_list->size) < (char*) new_block && free_list->next!=NULL){
+		free_list = free_list->next;
+	}
+	//block to be free is at the tail of the free list
+	if ((char*) free_list + free_list->size == (char *) new_block){
+		free_list->next = NULL;
+		free_list->size += new_block_size;
+//insert in between	
+//	new_block->prev = free_list;
+//	new_block->next = free_list->next;
+//	free_list->next = new_block;
+	}
+	else if( (char *) new_block < (char*) free_list){
+		
+		
+	}
+	if((char *) free_list + free_list->size == (char *) new_block){
+		free_list->next = new_block->next;
+		free_list->size += new_block_size;	
+	}
+	if((char *) free_list + free_list->size == (char *) free_list->next){
+		free_list->next = new_block->next->next;
+		free_list->size += new_block->next->size;
+
+	}
+	heaptab[getpid()].freelist = heap->freelist;
+	heaptab[getpid()].size = heap->size+new_block_size;
+	//heaptab[getpid()].startaddr = (char *) heap->freelist;
+	restore(mask);		
+	return;
+
+ }
+
+
+

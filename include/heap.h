@@ -14,7 +14,7 @@ typedef struct heap_t {
 	  free_blk* freelist;
 } heap_t;
 
-
+extern sid32 run_sem;
 extern void initheap(char*, uint32);
 extern syscall getheap(pid32, uint32);
 extern syscall freeheap(pid32);
