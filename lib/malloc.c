@@ -104,11 +104,30 @@ void free(char* block, uint32 size) {
 		restore(mask);
 		return;
 	}
+	//printf("\nIterating over the free list %d \t %d", (char*) free_block, (char*) new_block);
+	else if((char*) new_block < (char*) free_block ){
+//		printf("here");
+		if((char*) new_block + new_block_size == (char*) free_block){
+//			printf("Inside if loop");
+			new_block->size += free_block->size;
+			new_block->next = free_block->next;
+			heap->freelist = new_block;
+		}
+		else{
+//			printf("Inside else loop");
+			new_block->next = free_block;
+			heap->freelist = new_block;
+		}
+
+		restore(mask);
+		return;
+	}
 	//iterate over the free list and check for the address of the block to be freed
-	while(((char*) free_block + free_block->size) < (char*) new_block && free_block->next!=NULL){
+	while((char*) free_block + free_block->size < (char*) new_block && free_block->next!=NULL){
 		printf("\nIterating over the free list %d \t %d", (char*) free_block, (char*) new_block);
 		free_block = free_block->next;
 	}
+
 	//block to be free is at the tail of the free list
 	if ((char*) free_block + free_block->size == (char *) new_block){
 		free_block->next = NULL;
