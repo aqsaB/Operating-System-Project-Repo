@@ -88,46 +88,50 @@ void free(char* block, uint32 size) {
 
 	free_blk* new_block = (free_blk*) block;
 	new_block->size = new_block_size;
-	free_blk* free_list = heap->freelist;
+	free_blk* free_block = heap->freelist;
 
 	intmask mask = disable();
-	//printf("\nfree_list %d", (char*) free_list);
-	//printf("\nheap_start %d", heap_start);
-	if (free_list == NULL){
-		new_block->next = NULL;
-		new_block->prev = NULL;
-		free_list = new_block;
+	//free list is empty so new block becomes the free list
+	if (free_block==NULL){
+//		printf("\n%d freelist is null",free_block->size);
+		//new_block->next = NULL;
+		//new_block->prev = NULL;
+		free_block = new_block;
+		free_block->size += new_block_size;
+		free_block->next = NULL;
+		heap->freelist = free_block;
+//		printf("\n%d new size of freelist",heap->freelist->size);
 		restore(mask);
 		return;
 	}
-	while(((char*) free_list + free_list->size) < (char*) new_block && free_list->next!=NULL){
-		free_list = free_list->next;
+	//iterate over the free list and check for the address of the block to be freed
+	while(((char*) free_block + free_block->size) < (char*) new_block && free_block->next!=NULL){
+		printf("\nIterating over the free list %d \t %d", (char*) free_block, (char*) new_block);
+		free_block = free_block->next;
 	}
 	//block to be free is at the tail of the free list
-	if ((char*) free_list + free_list->size == (char *) new_block){
-		free_list->next = NULL;
-		free_list->size += new_block_size;
-//insert in between	
-//	new_block->prev = free_list;
-//	new_block->next = free_list->next;
-//	free_list->next = new_block;
+	if ((char*) free_block + free_block->size == (char *) new_block){
+		free_block->next = NULL;
+		free_block->size += new_block_size;
 	}
-	else if( (char *) new_block < (char*) free_list){
+	//insert in between
+	
+	else if( (char *) new_block < (char*) free_block){
+		new_block->prev = free_block;
+	        new_block->next = free_block->next;
+       		free_block->next = new_block;	
 		
-		
 	}
-	if((char *) free_list + free_list->size == (char *) new_block){
-		free_list->next = new_block->next;
-		free_list->size += new_block_size;	
+	if((char *) free_block + free_block->size == (char *) new_block){
+		free_block->next = new_block->next;
+		free_block->size += new_block_size;	
 	}
-	if((char *) free_list + free_list->size == (char *) free_list->next){
-		free_list->next = new_block->next->next;
-		free_list->size += new_block->next->size;
+	if((char *) free_block + free_block->size == (char *) free_block->next){
+		free_block->next = new_block->next->next;
+		free_block->size += new_block->next->size;
 
 	}
-	heaptab[getpid()].freelist = heap->freelist;
-	heaptab[getpid()].size = heap->size+new_block_size;
-	//heaptab[getpid()].startaddr = (char *) heap->freelist;
+	
 	restore(mask);		
 	return;
 
