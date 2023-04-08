@@ -24,16 +24,29 @@ int ttydiscipline(char ch,
 		       *      * Copy the contents of the 'tyibuff' buffer from the 'tyihead' through 'tyitail'
 		       *           *     into the 'typrev' buffer.
 		       *                */
-		//int i = 0;
-		int prev_length = typtr->tyicursor;
+
+		/*int prev_length = typtr->tyicursor;
 		for(int i = 0; i<prev_length; i++){
 			typtr->typrev[i] = *typtr->tyihead;
 			typtr->tyihead++;
 			/* Wrap around buffer, if needed */
-			if (typtr->tyihead >= &typtr->tyibuff[TY_IBUFLEN])
+		/*	if (typtr->tyihead >= &typtr->tyibuff[TY_IBUFLEN])
 				typtr->tyihead = typtr->tyibuff;
 		}
-		typtr->prev_buff_len = prev_length;
+		typtr->prev_buff_len = prev_length;*/ 
+		int i = 0;
+		char *temp_head = typtr->tyihead;
+		while(typtr->tyihead != typtr->tyitail){
+			typtr->typrev[i] = *typtr->tyihead;
+			typtr->tyihead++;
+			if(typtr->tyihead >= &typtr->tyibuff[TY_IBUFLEN]){
+				typtr->tyihead = typtr->tyibuff;
+			}
+			i++;
+		}
+		typtr->tyihead = temp_head;
+		typtr->prev_buff_len = i;
+
 	return DO_PRINT;
    }
    	if (ch == TY_ESC){

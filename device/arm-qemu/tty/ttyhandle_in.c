@@ -13,7 +13,6 @@ extern  int     ttydiscipline(char, struct ttycblk*, struct uart_csreg*);
  *  *  ttyhandle_in  -  Handle one arriving char (interrupts disabled)
  *   *------------------------------------------------------------------------
  *    */
-
 void	ttyhandle_in (
 			  struct ttycblk *typtr,	/* Pointer to ttytab entry	*/
 			  	  struct uart_csreg *csrptr	/* Address of UART's CSR	*/
@@ -33,155 +32,157 @@ void	ttyhandle_in (
 
 							/* Handle raw mode */
 
-			if (typtr->tyimode == TY_IMRAW) {
-						if (avail >= TY_IBUFLEN) { /* No space => ignore input	*/
-							      typtr->ovrrn++;
-							      			return;
+							if (typtr->tyimode == TY_IMRAW) {
+										if (avail >= TY_IBUFLEN) { /* No space => ignore input	*/
+											      typtr->ovrrn++;
+											      			return;
+																}
+
+												/* Place char in buffer with no editing */
+
+												*typtr->tyitail++ = ch;
+
+														/* Wrap buffer pointer	*/
+
+														if (typtr->tyotail >= &typtr->tyobuff[TY_OBUFLEN]) {
+																		typtr->tyotail = typtr->tyobuff;
+																				}
+
+																/* Signal input semaphore and return */
+																signal(typtr->tyisem);
+																		return;
+																			}
+
+								/* Handle cooked and cbreak modes (common part) */
+
+								if ( (ch == TY_RETURN) && typtr->tyicrlf ) {
+											ch = TY_NEWLINE;
 												}
 
-								/* Place char in buffer with no editing */
+									/* If flow control is in effect, handle ^S and ^Q */
 
-								*typtr->tyitail++ = ch;
+									if (typtr->tyoflow) {
+												if (ch == typtr->tyostart) {	    /* ^Q starts output	*/
+																typtr->tyoheld = FALSE;
+																			ttykickout(csrptr);
+																						return;
+																								} else if (ch == typtr->tyostop) {  /* ^S stops	output	*/
+																												typtr->tyoheld = TRUE;
+																															return;
+																																	}
+													}
 
-										/* Wrap buffer pointer	*/
+										typtr->tyoheld = FALSE;		/* Any other char starts output */
 
-										if (typtr->tyotail >= &typtr->tyobuff[TY_OBUFLEN]) {
-														typtr->tyotail = typtr->tyobuff;
-																}
+											if (typtr->tyimode == TY_IMCBREAK) {	   /* Just cbreak mode	*/
 
-												/* Signal input semaphore and return */
-												signal(typtr->tyisem);
-														return;
-															}
-		/* Handle cooked and cbreak modes (common part) */
+														/* If input buffer is full, send bell to user */
 
-				if ( (ch == TY_RETURN) && typtr->tyicrlf ) {
-							ch = TY_NEWLINE;
-								}
+														if (avail >= TY_IBUFLEN) {
+																		eputc(typtr->tyifullc, typtr, csrptr);
+																				} else {	/* Input buffer has space for this char */
+																								*typtr->tyitail++ = ch;
 
-					/* If flow control is in effect, handle ^S and ^Q */
+																											/* Wrap around buffer */
 
-					if (typtr->tyoflow) {
-								if (ch == typtr->tyostart) {	    /* ^Q starts output	*/
-												typtr->tyoheld = FALSE;
-															ttykickout(csrptr);
-																		return;
-																				} else if (ch == typtr->tyostop) {  /* ^S stops	output	*/
-																								typtr->tyoheld = TRUE;
-																											return;
-																													}
-									}
-
-			typtr->tyoheld = FALSE;		/* Any other char starts output */
-
-				if (typtr->tyimode == TY_IMCBREAK) {	   /* Just cbreak mode	*/
-
-							/* If input buffer is full, send bell to user */
-
-							if (avail >= TY_IBUFLEN) {
-											eputc(typtr->tyifullc, typtr, csrptr);
-													} else {	/* Input buffer has space for this char */
-																	*typtr->tyitail++ = ch;
-
-																				/* Wrap around buffer */
-
-				if (typtr->tyitail>=&typtr->tyibuff[TY_IBUFLEN]) {
-																									typtr->tyitail = typtr->tyibuff;
-																												}
-																							if (typtr->tyiecho) {	/* Are we echoing chars?*/
-																												echoch(ch, typtr, csrptr);
-																															}
-																									}
-									return;
-
-		} else {	/* Just cooked mode (see common code above) */
-
-					/* Line kill character arrives - kill entire line */
-
-					if (ch == typtr->tyikillc && typtr->tyikill) {
-									typtr->tyitail -= typtr->tyicursor;
-												if (typtr->tyitail < typtr->tyibuff) {
-																	typtr->tyihead += TY_IBUFLEN;
-																				}
-															typtr->tyicursor = 0;
-																		eputc(TY_RETURN, typtr, csrptr);
-																					eputc(TY_NEWLINE, typtr, csrptr);
-																								return;
-																										}
-
-	/* Erase (backspace) characters */
-
-							if ( ((ch == typtr->tyierasec) || (ch == typtr->tyierasec2)) 
-									         && typtr->tyierase ) {
-											if (typtr->tyicursor > 0) {
-																typtr->tyicursor--;
-																				erase1(typtr, csrptr);
-																							}
-														return;
-																}
-
-									if (ttydiscipline(ch, typtr, csrptr) == 0)
-												  return;
-											/* End of line */
-
-											if ( (ch == TY_NEWLINE) || (ch == TY_RETURN) ) {
-															if (typtr->tyiecho) {
-																				echoch(ch, typtr, csrptr);
-																							}
-																		*typtr->tyitail++ = ch;
-																					if (typtr->tyitail>=&typtr->tyibuff[TY_IBUFLEN]) {
-																										typtr->tyitail = typtr->tyibuff;
-																													}
-																								/* Make entire line (plus \n or \r) available */
-																								signaln(typtr->tyisem, typtr->tyicursor + 1);
-																											typtr->tyicursor = 0; 	/* Reset for next line	*/
-																														return;
+																											if (typtr->tyitail>=&typtr->tyibuff[TY_IBUFLEN]) {
+																																typtr->tyitail = typtr->tyibuff;
+																																			}
+																														if (typtr->tyiecho) {	/* Are we echoing chars?*/
+																																			echoch(ch, typtr, csrptr);
+																																						}
 																																}
+																return;
 
-	/* Character to be placed in buffer - send bell if	*/
-													/*	buffer has overflowed				*/
+																	} else {	/* Just cooked mode (see common code above) */
 
-													avail = semcount(typtr->tyisem);
-															if (avail < 0) {
-																			avail = 0;
-																					}
-																	if ((avail + typtr->tyicursor) >= TY_IBUFLEN-1) {
-																					eputc(typtr->tyifullc, typtr, csrptr);
-																								return;
-																										}
+																				/* Line kill character arrives - kill entire line */
 
-/* EOF character: recognize at beginning of line, but	*/
-		/*	print and ignore otherwise.			*/
+																				if (ch == typtr->tyikillc && typtr->tyikill) {
+																								typtr->tyitail -= typtr->tyicursor;
+																											if (typtr->tyitail < typtr->tyibuff) {
+																																typtr->tyihead += TY_IBUFLEN;
+																																			}
+																														typtr->tyicursor = 0;
+																																	eputc(TY_RETURN, typtr, csrptr);
+																																				eputc(TY_NEWLINE, typtr, csrptr);
+																																							return;
+																																									}
 
-		if (ch == typtr->tyeofch && typtr->tyeof) {
-			if (typtr->tyiecho) {
-					echoch(ch, typtr, csrptr);
-					}
-			if (typtr->tyicursor != 0) {
-					return;
-					}
-			*typtr->tyitail++ = ch;
-			signal(typtr->tyisem);
-			return;			
-		}
-/* Echo the character */
+																						/* Erase (backspace) characters */
 
-		if (typtr->tyiecho) {
-				echoch(ch, typtr, csrptr);
-				}
+																						if ( ((ch == typtr->tyierasec) || (ch == typtr->tyierasec2)) 
+																								         && typtr->tyierase ) {
+																										if (typtr->tyicursor > 0) {
+																															typtr->tyicursor--;
+																																			erase1(typtr, csrptr);
+																																						}
+																													return;
+																															}
 
-		/* Insert in the input buffer */
+																								if (ttydiscipline(ch, typtr, csrptr) == 0)
+																											  return;
+																										/* End of line */
 
-		typtr->tyicursor++;
-		*typtr->tyitail++ = ch;
+																										if ( (ch == TY_NEWLINE) || (ch == TY_RETURN) ) {
+																														if (typtr->tyiecho) {
+																																			echoch(ch, typtr, csrptr);
+																																						}
+																																	*typtr->tyitail++ = ch;
+																																				if (typtr->tyitail>=&typtr->tyibuff[TY_IBUFLEN]) {
+																																									typtr->tyitail = typtr->tyibuff;
+																																												}
+																																							/* Make entire line (plus \n or \r) available */
+																																							signaln(typtr->tyisem, typtr->tyicursor + 1);
+																																										typtr->tyicursor = 0; 	/* Reset for next line	*/
+																																													return;
+																																															}
 
-		/* Wrap around if needed */
+																												/* Character to be placed in buffer - send bell if	*/
+																												/*	buffer has overflowed				*/
 
-		if (typtr->tyitail >= &typtr->tyibuff[TY_IBUFLEN]) {
-				typtr->tyitail = typtr->tyibuff;
-				}
-		return;
-	}
+																												avail = semcount(typtr->tyisem);
+																														if (avail < 0) {
+																																		avail = 0;
+																																				}
+																																if ((avail + typtr->tyicursor) >= TY_IBUFLEN-1) {
+																																				eputc(typtr->tyifullc, typtr, csrptr);
+																																							return;
+																																									}
+
+																																		/* EOF character: recognize at beginning of line, but	*/
+																																		/*	print and ignore otherwise.			*/
+
+																																		if (ch == typtr->tyeofch && typtr->tyeof) {
+																																						if (typtr->tyiecho) {
+																																											echoch(ch, typtr, csrptr);
+																																														}
+																																									if (typtr->tyicursor != 0) {
+																																														return;
+																																																	}
+																																												*typtr->tyitail++ = ch;
+																																															signal(typtr->tyisem);
+																																																		return;			
+																																																				}
+																																				
+																																				/* Echo the character */
+
+																																				if (typtr->tyiecho) {
+																																								echoch(ch, typtr, csrptr);
+																																										}
+
+																																						/* Insert in the input buffer */
+
+																																						typtr->tyicursor++;
+																																								*typtr->tyitail++ = ch;
+
+																																										/* Wrap around if needed */
+
+																																										if (typtr->tyitail >= &typtr->tyibuff[TY_IBUFLEN]) {
+																																														typtr->tyitail = typtr->tyibuff;
+																																																}
+																																												return;
+																																													}
 }
 
 /*------------------------------------------------------------------------
@@ -227,7 +228,6 @@ local	void	erase1(
 						return;
 }
 
-
 /*------------------------------------------------------------------------
  *  *  echoch  -  Echo a character with visual and output crlf options
  *   *------------------------------------------------------------------------
@@ -268,4 +268,3 @@ local	void	eputc(
 				ttykickout(csrptr);
 					return;
 }
-
