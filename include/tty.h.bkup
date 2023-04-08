@@ -1,8 +1,8 @@
 /* tty.h */
 
-#define	TY_OBMINSP		128	/* min space in buffer before	*/
+#define	TY_OBMINSP		20	/* min space in buffer before	*/
 					/* processes awakened to write	*/
-#define	TY_EBUFLEN		128	/* size of echo queue		*/
+#define	TY_EBUFLEN		20	/* size of echo queue		*/
 
 /* Size constants */
 
@@ -41,31 +41,28 @@ struct	ttycblk	{			/* tty line control block	*/
 	bool8	tyevis;			/* echo control chars as ^X ?	*/
 	bool8	tyecrlf;		/* echo CR-LF for newline?	*/
 	bool8	tyicrlf;		/* map '\r' to '\n' on input?	*/
-				bool8	tyierase;		/* honor erase character?	*/
-				char	tyierasec;		/* erase character (backspace)	*/
+	bool8	tyierase;		/* honor erase character?	*/
+	char	tyierasec;		/* erase character (backspace)	*/
 	char	tyierasec2;		/* Alternate erase character	*/
 	bool8	tyeof;			/* honor EOF character?		*/
-																							char	tyeofch;		/* EOF character (usually ^D)	*/
-																							bool8	tyikill;		/* honor line kill character?	*/
-																							char	tyikillc;		/* line kill character		*/
-																							int32	tyicursor;		/* current cursor position	*/
-																							int32	prev_buff_len;       /*length of prev buffer array 	*/
-																								bool8	tyoflow;		/* honor ostop/ostart?		*/
-																									bool8	tyoheld;		/* output currently being held?	*/
-																													char	tyostop;		/* character that stops output	*/
-																														char	tyostart;		/* character that starts output	*/
-																															bool8	tyocrlf;		/* output CR/LF for LF ?	*/
-																																char	tyifullc;		/* char to send when input full	*/
-																																        char    typrev[TY_IBUFLEN];     /* buffer to store prev command */
-																																	        char    tycommand;              /* previous command state */
+	char	tyeofch;		/* EOF character (usually ^D)	*/
+	bool8	tyikill;		/* honor line kill character?	*/
+	char	tyikillc;		/* line kill character		*/
+	int32	tyicursor;		/* current cursor position	*/
+	bool8	tyoflow;		/* honor ostop/ostart?		*/
+	bool8	tyoheld;		/* output currently being held?	*/
+	char	tyostop;		/* character that stops output	*/
+	char	tyostart;		/* character that starts output	*/
+	bool8	tyocrlf;		/* output CR/LF for LF ?	*/
+	char	tyifullc;		/* char to send when input full	*/
 
-																																		  /* Statistical Counts */
-																																		  uint cout;                  /**< Characters output                  */
-																																		    uint cin;                   /**< Characters input                   */
-																																		      uint lserr;                 /**< Receiver error count               */
-																																		        uint ovrrn;                 /**< Characters overrun                 */
-																																			  uint iirq;                  /**< Input IRQ count                    */
-																																			    uint oirq;                  /**< Output IRQ count                   */
+  /* Statistical Counts */
+  uint cout;                  /**< Characters output                  */
+  uint cin;                   /**< Characters input                   */
+  uint lserr;                 /**< Receiver error count               */
+  uint ovrrn;                 /**< Characters overrun                 */
+  uint iirq;                  /**< Input IRQ count                    */
+  uint oirq;                  /**< Output IRQ count                   */
 };
 extern	struct	ttycblk	ttytab[];
 
@@ -93,4 +90,3 @@ extern	struct	ttycblk	ttytab[];
 #define	TC_ICHARS	8		/* return number of input chars	*/
 #define	TC_ECHO		9		/* turn on echo			*/
 #define	TC_NOECHO	10		/* turn off echo		*/
-
