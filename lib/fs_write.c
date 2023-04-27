@@ -1,5 +1,6 @@
 #include <xinu.h>
 #include <fs.h>
+#include <stdio.h>
 
 extern fsystem_t* fsd;
 extern filetable_t oft[NUM_FD];
@@ -29,12 +30,20 @@ int fs_write(int fd, char* buff, int len) {
 	int block_sz = fsd->device.blocksz;
 
 	int total = len;
-	
+	printf("head value is %d", head);
+
 	while(total>0){
-		/*if (head%block_sz == 0 head > oft[fd].in.size){
+		if ((head%block_sz == 0 && head >= oft[fd].in.size) || head == 0){
 			int page_index = head/block_sz;
-			oft[fd].in.blocks[page_index];	
-		}*/
+			int k = get_free_block();
+			if(k==-1){
+				break;
+			}
+			fs_setmaskbit(k);
+			printf("\n value of k is %d", k);
+			oft[fd].in.blocks[page_index] = get_free_block();
+					
+		}
 
 		bs_write(oft[fd].in.blocks[head/block_sz], head%block_sz, &buff[counter], write_sz);
 		head += write_sz;

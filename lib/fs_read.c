@@ -15,5 +15,21 @@ extern filetable_t oft[NUM_FD];
  *         *    - Return the number of bytes read
  *          */
 int fs_read(int fd, char* buff, int len) {
-	  return 0;
+	int counter = 0;
+	int total = len;
+	int head = oft[fd].fileptr;
+	int block_sz = fsd->device.blocksz;
+	int read_sz = 1;
+	
+	if(total > oft[fd].in.size - head){
+		total = oft[fd].in.size - head;
+	}
+	while (total>0){
+	bs_read(oft[fd].in.blocks[head/block_sz],head%block_sz,&buff[counter], read_sz);
+	head += read_sz;
+	total -= 1;
+	counter += 1;
+	}
+	oft[fd].fileptr = head;
+	return counter;
 }
