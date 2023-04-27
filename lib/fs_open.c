@@ -27,9 +27,8 @@ int fs_open(char* filename, int flags) {
 			} */
 			for (int j = 0; j < NUM_FD; j++){
 				if(oft[j].state == FSTATE_CLOSED){
-					//printf("\n in here");
-					oft[j].state = FSTATE_OPEN;
 					oft[j].fileptr = 0;
+					oft[j].state = FSTATE_OPEN;
 					oft[j].flag = flags;
 					oft[j].de = i;
 					bs_read(x, 0, &oft[j].in,sizeof(inode_t));

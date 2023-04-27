@@ -30,7 +30,7 @@ int fs_write(int fd, char* buff, int len) {
 	int block_sz = fsd->device.blocksz;
 
 	int total = len;
-	printf("head value is %d", head);
+	//printf("head value is %d", head);
 
 	while(total>0){
 		if ((head%block_sz == 0 && head >= oft[fd].in.size) || head == 0){
@@ -40,7 +40,7 @@ int fs_write(int fd, char* buff, int len) {
 				break;
 			}
 			fs_setmaskbit(k);
-			printf("\n value of k is %d", k);
+			//printf("\n value of k is %d", k);
 			oft[fd].in.blocks[page_index] = get_free_block();
 					
 		}
