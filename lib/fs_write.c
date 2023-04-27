@@ -14,7 +14,7 @@ extern filetable_t oft[NUM_FD];
  *        *   - Update inode state to reflect changes
  *         *   - Return the number of bytes written
  *          */
-int get_block(){
+int get_free_block(){
 	
 }
 int fs_write(int fd, char* buff, int len) {
