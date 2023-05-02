@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <shprototypes.h>
+#include <future.h>
 //#include <prodcons_bb.h> 
 /*------------------------------------------------------------------------
  * xsh_run - obtain and print the current month, day, year, and time
@@ -27,7 +28,16 @@ shellcmd xsh_run(int nargs, char *args[]) {
 		  resume(create((void *) xsh_hello, 4096, 2, "hello function", 2, nargs - 1, &(args[1])));
 	}
 	 else if(strncmp(args[1], "futest", 6) == 0){
-	 	 resume(create((void *) xsh_futest, 4096, 2, "futest function", 2, nargs - 1, &(args[1])));
+	 	 if(strncmp(args[2], "-f", 2) == 0){
+		 	resume(create((void *) future_fib, 4096, 2, "fibonacchi", 2, nargs - 1, &(args[1])));
+		 }
+		 else if(strncmp(args[2], "--free", 6 ) == 0){
+			  resume(create((void *) future_free_test, 4096, 2, "free futures", 2, nargs - 1, &(args[1])));		 	
+		 }
+		else{
+
+		 resume(create((void *) xsh_futest, 4096, 2, "futest function", 2, nargs - 1, &(args[1])));
+		}
 	 }
 	 else if(strncmp(args[1], "prodcons_bb", 11) == 0){
 	      resume(create((void *) xsh_prodcons_bb, 4096, 2, "prodcons_bb function", 2, nargs - 1, &(args[1])));
